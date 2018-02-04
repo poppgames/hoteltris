@@ -2,6 +2,7 @@
 
 const CUBES_HEIGHT =BOARD_HEIGHT + SHAPE_LENGTH;
 
+var cubePositions = createArray(BOARD_WIDTH, CUBES_HEIGHT, 2);
 var cubes = createArray(BOARD_WIDTH, CUBES_HEIGHT);
 
 function isInCube(x, y) {
@@ -36,6 +37,8 @@ function createBoard() {
             scene.add( cube );
 
             cubes[i][j] = cube;
+            cubePositions[i][j][0] = cube.position.x;
+            cubePositions[i][j][1] = cube.position.y;
         }
     }
 }
@@ -47,11 +50,13 @@ function updateCubePositions(shape) {
         for(var j = 0; j < CUBES_HEIGHT; j++) {
             var cube = getCube(i, j);
             if(!isInBoard(i, j) || isEmptyCell(cellAt(i,j))) {
-                cube.position.z = -1000;
+                cube.position.z = -250;
             }
             else {
                 cube.position.z = 0;
             }
+            cube.position.x = cubePositions[i][j][0];
+            cube.position.y = cubePositions[i][j][1];
             
         }
     }
@@ -65,6 +70,9 @@ function updateCubePositions(shape) {
                     if(isInCube(x + i, y + j)) {
                         var cube = getCube(x + i, y + j);
                         cube.position.z = 50;
+                        
+                        cube.position.x += getCellXOffset();
+                        cube.position.y += getCellYOffset();
                     }
                 }
             }

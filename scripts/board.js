@@ -2,7 +2,7 @@
 
 
 const SHAPE_LENGTH = 3;
-const BOARD_WIDTH = 10;
+const BOARD_WIDTH = 5;
 const BOARD_HEIGHT = 10;
 
 var board = createArray(BOARD_WIDTH, BOARD_WIDTH);
@@ -31,6 +31,7 @@ function resetBoard() {
 }
 
 function moveCell(x, y, newX, newY) {
+    console.log("moving cell from y " + y + " to " + newY + " | x " + x + " to " + newX);
     board[newX][newY] = cellAt(x,y); //might cause memroty issues, due to setting and stuff
     board[x][y] = undefined;
 }
@@ -85,15 +86,21 @@ function applyGravityToPlacedShape(x, y){
     //bottom up
     for(var i = 0; i < SHAPE_LENGTH; i++){
         for(var j = 0; j < SHAPE_LENGTH; j++){
-            var cell = cellAt(x + i, y + j);
-            var gravJ = j - 1;
-            while(gravJ >= 0 && isEmptyCell(cellAt(x + i, gravJ))) {
-                gravJ--;
-            }
-            gravJ++; //place cell above cell that exists on board
-
-            if(gravJ != j) {
-                moveCell(x + i , y + j, x + i, y + gravJ);
+            if(isInBoard(x + i, y + j)) {
+                if(currentShape[i][j] > 0) {
+                    var cell = cellAt(x + i, y + j);
+                    var startY = y + j;
+                    var gravY = startY - 1;
+                    console.log("grav j" + gravY);
+                    while(gravY >= 0 && isEmptyCell(cellAt(x + i, gravY))) {
+                        gravY--;
+                    }
+                    gravY++; //place cell above cell that exists on board
+        
+                    if(gravY != startY) {
+                        moveCell(x + i , startY, x + i, gravY);
+                    }
+                }
             }
         }
     }
