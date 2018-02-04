@@ -16,6 +16,14 @@
 	<body>
 
 		<script src="js/three.js"></script>
+		<script src="scripts/turn.js"></script>
+		<script src="scripts/inputHandler.js"></script>
+		<script src="scripts/NArrayCreation.js"></script>
+		<script src="scripts/Enum.js"></script>
+		<script src="scripts/entity.js"></script>
+		<script src="scripts/shapes.js"></script>
+		<script src="scripts/board.js"></script>
+		<script src="scripts/boardRender.js"></script>
 
 		<script src="js/js/renderers/Projector.js"></script>
 		<script src="js/js/renderers/CanvasRenderer.js"></script>
@@ -63,9 +71,12 @@
 				scene.background = new THREE.Color( 0xf0f0f0 );
 
 
+				createBoard();
+				turnStart();
 				// Cube
 
-				var geometry = new THREE.BoxGeometry( 200, 200, 200 );
+				
+				var geometry = new THREE.BoxGeometry(200, 200, 200 );
 
 				for ( var i = 0; i < geometry.faces.length; i += 2 ) {
 
@@ -78,7 +89,7 @@
 				var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
 
 				cube = new THREE.Mesh( geometry, material );
-				cube.position.y = 150;
+				cube.position.x = -10000;
 				scene.add( cube );
 
 				// Plane
@@ -89,6 +100,7 @@
 				var material = new THREE.MeshBasicMaterial( { color: 0xe0e0e0, overdraw: 0.5 } );
 
 				plane = new THREE.Mesh( geometry, material );
+				plane.position.x = -10000;
 				scene.add( plane );
 
 				renderer = new THREE.CanvasRenderer();
@@ -187,14 +199,17 @@
 			}
 
 			//
-
 			function animate() {
 
+				turnUpdate();
 				requestAnimationFrame( animate );
 
 				stats.begin();
 				render();
 				stats.end();
+
+
+
 
 			}
 
