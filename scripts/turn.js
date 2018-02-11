@@ -22,18 +22,18 @@ function getCellXOffset() {
    return posX - (getCellX() * getCellWidth());
 }
 function getCellYOffset() {
-    var yOffset = posY - (getCellY() * getCellHeight())
+    let yOffset = posY - (getCellY() * getCellHeight())
     console.log(yOffset);
     return yOffset;
 }
 function isAtRightEdge() {
-    var x =  getCellX() + leftMostXShapeIndex;
+    let x =  getCellX() + leftMostXShapeIndex;
     console.log("Right Edge: " + x);
     return x >= BOARD_WIDTH;
 }
 function isCollidingAtCurrentCell() {
-    var x = getCellX();
-    var y = getCellY();
+    let x = getCellX();
+    let y = getCellY();
     return isColliding(x, y, currentShape);
 }
 
@@ -50,8 +50,8 @@ function turnStart()
 {
     currentShape = getShape();
     leftMostXShapeIndex = 0;
-    for(var i = 0; i < SHAPE_LENGTH; i++){
-        for(var j = 0; j < SHAPE_LENGTH; j++){
+    for(let i = 0; i < SHAPE_LENGTH; i++){
+        for(let j = 0; j < SHAPE_LENGTH; j++){
             if(currentShape[i][j] > 0) {
                 if(leftMostXShapeIndex < i) {
                     leftMostXShapeIndex = i;
@@ -65,7 +65,7 @@ function turnStart()
     posY = canvasHeight(); //TODO, is 0 at top of screen or bottom?
 
     //check for game over
-    for(var x = 0; x < BOARD_HEIGHT; x++) {
+    for(let x = 0; x < BOARD_HEIGHT; x++) {
         if(isColliding(x, BOARD_HEIGHT - 1, currentShape)) {
             isGameOver = true;
             console.log("GAME OVER");
@@ -101,13 +101,21 @@ function turnUpdate()
 }
 
 function turnTileUpdate() {
-    var x = getCellX();
-    var y = getCellY();
+    let x = getCellX();
+    let y = getCellY();
 
     if(isColliding(x,y, currentShape)) {
         placeShape(x,y, currentShape);
         applyGravityToPlacedShape(x,y);
         mergeCellsOnBoard();
+        applyGravityToBoard();
+
+        for(let times = 0; times < 3; times++)
+        {
+            upgradeCellsOnBoard();
+            mergeCellsOnBoard();
+            applyGravityToBoard();
+        }
 
         //end turn
         turnStart();
@@ -117,7 +125,7 @@ function turnTileUpdate() {
 
 function moveLeft(){
     posX -= speed_x;
-    var oldX = getCellX();
+    let oldX = getCellX();
     if(posX < 0) {
         posX = 0;
     }

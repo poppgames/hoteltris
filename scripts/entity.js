@@ -10,7 +10,7 @@ const DECOR_KINDS = 5;
 var DNFlags = [1,2,4,8,16];
 
 function hasFlag(value, flag) {
-    return (flag & value) == value
+    return (flag & DNFlags[value]) == DNFlags[value]
 }
 var DN = new Enum('WALL', 'DOOR', 'FENCE', 'WINDOW', 'PLANT');
 var DNIndex = [DN.WALL, DN.DOOR, DN.FENCE, DN.WINDOW, DN.PLANT];
@@ -24,7 +24,8 @@ function addDecorCell()
 {
     //kind, level
     var cell = createArray(DECOR_KINDS);
-    for(var i = 0; i < DECOR_KINDS; i++) {
+
+    for(let i = 0; i < DECOR_KINDS; i++) {
         cell[i] = {};
         cell[i][DC.LEVEL] = 0;
     }
@@ -36,7 +37,7 @@ function addDecorCell()
 function cellSameOnAnyLevel(cell, leftCell, rightCell) {
 
     var result = 0;
-    for(var i = 0; i < DECOR_KINDS; i++) {
+    for(let i = 0; i < DECOR_KINDS; i++) {
         if(cell[i][DC.LEVEL] === leftCell[i][DC.LEVEL] &&
             cell[i][DC.LEVEL] === rightCell[i][DC.LEVEL]) {
             result += DNFlags[i];
@@ -46,14 +47,26 @@ function cellSameOnAnyLevel(cell, leftCell, rightCell) {
 };
 
  function cellMerge(cell, leftCell, rightCell, flag) {
-    var result = 0;
-    for(var i = 0; i < DECOR_KINDS; i++) {
+    for(let i = 0; i < DECOR_KINDS; i++) {
         if(hasFlag(i, flag)) {
             cell[i][DC.LEVEL]++;
         }
     }
     leftCell = undefined;
     rightCell = undefined;
+};
+
+
+
+function cellUpgrade(cell, leftCell, rightCell, flag) {
+    for(let i = 0; i < DECOR_KINDS; i++) {
+        if(leftCell[i][DC.LEVEL] == rightCell[i][DC.LEVEL]) {
+
+            if(leftCell[i][DC.LEVEL] - cell[i][DC.LEVEL] >= 1) {
+                cell[i][DC.LEVEL]++;
+            }
+        }
+    }
 };
 
 
@@ -83,7 +96,7 @@ function addDecor(dn) {
     decorPaths[decorIndex] = {};
 
     //setup strings for image paths
-    for(var i = 0; i < DECOR_LEVELS; i++) {
+    for(let i = 0; i < DECOR_LEVELS; i++) {
         decorPaths[decorIndex][i] = getDecorImagePath(name, i);
     }
     decorIndex++;

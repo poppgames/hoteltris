@@ -23,8 +23,8 @@ function cellAt(x,y){
 
 function resetBoard() {
 
-    for(var i = 0; i < BOARD_WIDTH; i++){
-        for(var j = 0; j < BOARD_HEIGHT; j++) {
+    for(let i = 0; i < BOARD_WIDTH; i++){
+        for(let j = 0; j < BOARD_HEIGHT; j++) {
             board[i][j] = undefined;
         }
     }
@@ -52,8 +52,8 @@ function isBottomCell(y) {
 
 function isColliding(x, y, shape){
     console.log("Shape: " + shape);
-    for(var i = 0; i < SHAPE_LENGTH; i++){
-        for(var j = 0; j < SHAPE_LENGTH; j++){
+    for(let i = 0; i < SHAPE_LENGTH; i++){
+        for(let j = 0; j < SHAPE_LENGTH; j++){
     
             if(shape[i][j] > 0) {
                 if(isInBoard(x + i, y + j)) {
@@ -72,8 +72,8 @@ function isColliding(x, y, shape){
 
 //assumes that we already verified that this shape is in the board
 function placeShape(x, y, shape){
-    for(var i = 0; i < SHAPE_LENGTH; i++){
-        for(var j = 0; j < SHAPE_LENGTH; j++){
+    for(let i = 0; i < SHAPE_LENGTH; i++){
+        for(let j = 0; j < SHAPE_LENGTH; j++){
             if(shape[i][j] > 0) {
                 var newCell = addDecorCell();
                 board[x + i][y + j] = newCell;
@@ -81,43 +81,100 @@ function placeShape(x, y, shape){
         }
     }
 }
+function applyGravityToBoard() {
+    //Make blocks on bottom fall first
+    for(let i = 0; i < BOARD_WIDTH; i++){
+        for(let j = 0; j < BOARD_HEIGHT; j++) {
+            applyGravity(i, j);
+        }
+    }
+}
 //assumes that we already verified that this shape is in the board
 function applyGravityToPlacedShape(x, y){
     //bottom up
-    for(var i = 0; i < SHAPE_LENGTH; i++){
-        for(var j = 0; j < SHAPE_LENGTH; j++){
+    for(let i = 0; i < SHAPE_LENGTH; i++){
+        for(let j = 0; j < SHAPE_LENGTH; j++){
             if(isInBoard(x + i, y + j)) {
                 if(currentShape[i][j] > 0) {
-                    var cell = cellAt(x + i, y + j);
-                    var startY = y + j;
-                    var gravY = startY - 1;
-                    console.log("grav j" + gravY);
-                    while(gravY >= 0 && isEmptyCell(cellAt(x + i, gravY))) {
-                        gravY--;
-                    }
-                    gravY++; //place cell above cell that exists on board
-        
-                    if(gravY != startY) {
-                        moveCell(x + i , startY, x + i, gravY);
-                    }
+                    applyGravity(x + i, y + j);
                 }
             }
         }
     }
 }
 
-function mergeCellsOnBoard(){
-    for(var i = 0; i < BOARD_WIDTH; i++){
-        for(var j = 0; j < BOARD_HEIGHT; j++) {
-            var cell = cellAt(i,j);
-            var flags = canMerge(i,j);
-            mergeCell(i, j, flags); //might be a bit awkward, since it is a greedy approach
+function applyGravity(x, y){
+    var cell = cellAt(x, y);
+    var startY = y;
+    var gravY = startY - 1;
+    console.log("grav j" + gravY);
+    while(gravY >= 0 && isEmptyCell(cellAt(x, gravY))) {
+        gravY--;
+    }
+    gravY++; //place cell above cell that exists on board
+
+    if(gravY != startY) {
+        moveCell(x , startY, x, gravY);
+    }
+}
+
+function upgradeCellsOnBoard(){
+    for(let i = 0; i < BOARD_WIDTH; i++){
+        for(let j = 0; j < BOARD_HEIGHT; j++) {
+            tryToUpgrade(i, j);
         }
     }
 }
 
+function mergeCellsOnBoard(){
+    for(let i = 0; i < BOARD_WIDTH; i++){
+        for(let j = 0; j < BOARD_HEIGHT; j++) {
+            var cell = cellAt(i,j);
+            var flags = canMerge(i,j);
+            if(flags > 0) {
+                console.log("Merging Cell with flags " + flags)
+                mergeCell(i, j, flags); //might be a bit awkward, since it is a greedy approach
+            }
+        }
+    }
+}
+
+function tryToUpgrade(x, y){
+    
+    var cell = cellAt(x,y);
+    if(isEmptyCell(cell)) {
+        return;
+    }
+
+
+    var rightCell; 
+    var leftCell;
+    
+
+    //wrap around
+    if(isEdgeCell(x + 1)) {
+        rightCell = cellAt(0, y);
+    } else {
+        rightCell = cellRight(x,y);
+    }
+    if(isEdgeCell(x - 1)) {
+        leftCell = cellAt(BOARD_WIDTH - 1, y);
+    } else {
+        leftCell = cellLeft(x,y);
+    }
+    
+    if(isEmptyCell(rightCell)) {
+        return;
+    }
+    if(isEmptyCell(leftCell)) {
+        return;
+    } 
+
+    cellUpgrade(cell, leftCell, rightCell);
+}
+
 //int, int, DecorName
-function canMerge(x, y, decorName)
+function canMerge(x, y)
 {
     if(isEdgeCell(x))
     {
@@ -158,5 +215,7 @@ function mergeCell(x, y, flags){
 
     var cell = cellAt(x,y);
     cellMerge(cell, cellLeft(x,y), cellRight(x,y), flags);
+    board[x - 1][y] = undefined;
+    board[x + 1][y] = undefined;
 }
 
